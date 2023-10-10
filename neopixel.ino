@@ -96,7 +96,7 @@ void setup() {
 }
 
 void loop() {
-  if(rfid() == 0x2){
+  if(rfid() == 0x3){
     handleRelay(PIN_R1, PIN_R2, PIN_R3, PIN_R4);
     handleLEDs();
   }
@@ -156,15 +156,18 @@ void handleRelay(uint8_t pin, uint8_t pin2, uint8_t pin3, uint8_t pin4) {
 void handleLEDs() {
     int led;
     int steps = 5; // Ilość kroków
-    int decrementValue = 255 / steps; // Wartość o jaką zmniejszamy zielony kolor w każdym kroku
+    int incrementValue = 200 / steps; // Wartość o jaką zwiększamy czerwony kolor w każdym kroku
 
     for (int i = 0; i <= steps; i++) {
-        int greenValue = 255 - (i * decrementValue);
+        int redValue = i * incrementValue;
         for (led = 0; led <= 104; led++) {
-            setColor(led, 255, greenValue, 0, i % 2);
+            setColor(led, redValue, 0, 255, i % 2);
         }
     }
 }
+
+
+
 
 
 void setColor(int led, int redValue, int greenValue, int blueValue, int delayValue) {
