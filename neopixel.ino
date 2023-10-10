@@ -26,7 +26,7 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(104, PIN, NEO_GRB + NEO_KHZ800);
 
 const char* ssid = "esp";
 const char* password = "Karolina2137";
-const IPAddress staticIP(192, 168, 2, 20);
+const IPAddress staticIP(192, 168, 2, 22);
 const IPAddress gateway(192, 168, 2, 1);
 const IPAddress subnet(255, 255, 255, 0);
 AsyncWebServer server(80);
@@ -99,22 +99,24 @@ void loop() {
   if(rfid() == 0x2){
     handleRelay(PIN_R1, PIN_R2, PIN_R3, PIN_R4);
     handleLEDs();
-  }
-  for(int i = 0; i < 4; i++){
-    if (millis() - startTime < 2000) {
-      if(rfid() == 0x1){
-        handleLEDs();
+    for(int i = 0; i < 4; i++){
+      if (millis() - startTime < 2000) {
+        if(rfid() == 0x2){
+          handleLEDs();
+        }
+      } else {
+        startTime = millis();
+        i--;
       }
-    } else {
-      startTime = millis();
-      i--;
     }
-  }
   while(1){
     dimm = false;
-    handleLEDs();
+    if(rfid() == 0x2){
+      handleLEDs();
+    }
   }
 }
+  }
 
 void handleRelay(uint8_t pin, uint8_t pin2, uint8_t pin3, uint8_t pin4) {
   unsigned long startTime = millis();
