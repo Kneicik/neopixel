@@ -109,9 +109,9 @@ void loop() {
         i--;
       }
     }
-  while(1){
-    dimm = false;
-    if(rfid() == 0x4){
+  if(rfid() == 0x4){
+    while(1){
+      dimm = false;
       handleLEDs();
     }
   }
