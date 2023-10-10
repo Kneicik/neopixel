@@ -96,7 +96,7 @@ void setup() {
 }
 
 void loop() {
-  if(rfid() == 0x1){
+  if(rfid() == 0x2){
     handleRelay(PIN_R1, PIN_R2, PIN_R3, PIN_R4);
     handleLEDs();
   }
@@ -154,25 +154,18 @@ void handleRelay(uint8_t pin, uint8_t pin2, uint8_t pin3, uint8_t pin4) {
 
 
 void handleLEDs() {
-    for(led=0; led <=104; led++) {
-      setColor(led,0,0,255,1);
-    }
-    for(led=0; led <=104; led++) {
-      setColor(led,0,50,255,0);
-    }
-    for(led=0; led <=104; led++) {
-      setColor(led,0,100,255,1);
-    }
-    for(led=0; led <=104; led++) {
-      setColor(led,0,150,255,0);
-    }
-    for(led=0; led <=104; led++) {
-      setColor(led,0,200,255,1);
-    }
-    for(led=0; led <=104; led++) {
-      setColor(led,0,255,255,0);
+    int led;
+    int steps = 5; // Ilość kroków
+    int decrementValue = 255 / steps; // Wartość o jaką zmniejszamy zielony kolor w każdym kroku
+
+    for (int i = 0; i <= steps; i++) {
+        int greenValue = 255 - (i * decrementValue);
+        for (led = 0; led <= 104; led++) {
+            setColor(led, 255, greenValue, 0, i % 2);
+        }
     }
 }
+
 
 void setColor(int led, int redValue, int greenValue, int blueValue, int delayValue) {
   pixels.setPixelColor(led, pixels.Color(redValue, greenValue, blueValue)); 
