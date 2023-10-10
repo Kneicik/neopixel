@@ -4,6 +4,11 @@
 #include <WiFi.h>
 #include <ESPAsyncWebSrv.h>
 
+// 0x1 wiatr
+// 0x2 ogien
+// 0x3 woda
+// 0x4 ziemia
+
 #define PIN 2
 #define PIN_R4 4
 #define PIN_R3 25
@@ -14,6 +19,7 @@
 #define MISO (19)
 #define MOSI (23)
 #define SS   (5)
+#define NUMPIXELS 104
 
 Adafruit_PN532 nfc(SCK, MISO, MOSI, SS);
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(104, PIN, NEO_GRB + NEO_KHZ800);
@@ -91,10 +97,7 @@ void setup() {
 
 void loop() {
   if(rfid() == 0x1){
-    handleRelay(PIN_R4);
-    handleRelay(PIN_R3);
-    handleRelay(PIN_R2);
-    handleRelay(PIN_R1);
+    handleRelay(PIN_R1, PIN_R2, PIN_R3, PIN_R4);
     handleLEDs();
   }
   for(int i = 0; i < 4; i++){
@@ -113,26 +116,42 @@ void loop() {
   }
 }
 
-void handleRelay(uint8_t pin) {
-  for(led=0; led <=104; led++) {
-    setColor(led,0,0,0,0);
+void handleRelay(uint8_t pin, uint8_t pin2, uint8_t pin3, uint8_t pin4) {
+  unsigned long startTime = millis();
+  unsigned long elapsedTime = 0;
+
+  while (elapsedTime < 2000) { // 2000 ms = 2 sekundy
+    uint8_t selectedPin;
+    uint8_t randPin = random(1, 5); // Losuje liczbę od 1 do 4
+
+    switch (randPin) {
+      case 1:
+        selectedPin = pin;
+        break;
+      case 2:
+        selectedPin = pin2;
+        break;
+      case 3:
+        selectedPin = pin3;
+        break;
+      case 4:
+        selectedPin = pin4;
+        break;
+    }
+
+    digitalWrite(selectedPin, random(0, 2)); // Losowo ustawia stan wysoki (1) lub niski (0)
+
+    delay(50); // Krótka przerwa między zmianami stanu pinów
+    elapsedTime = millis() - startTime;
   }
-  digitalWrite(pin, 0);
-  digitalWrite(pin, 1);
-  delay(100);
-  digitalWrite(pin, 0);
-  delay(100);
-  digitalWrite(pin, 1);
-  delay(250);
-  digitalWrite(pin, 0);
-  delay(250);
-  digitalWrite(pin, 1);
-  delay(400);
-  digitalWrite(pin, 0);
-  delay(1000);
-  digitalWrite(pin, 1);
-  delay(1000);
+
+  // Ustawia wszystkie piny w stanie wysokim na koniec
+  digitalWrite(pin, HIGH);
+  digitalWrite(pin2, HIGH);
+  digitalWrite(pin3, HIGH);
+  digitalWrite(pin4, HIGH);
 }
+
 
 void handleLEDs() {
     for(led=0; led <=104; led++) {
@@ -161,16 +180,19 @@ void setColor(int led, int redValue, int greenValue, int blueValue, int delayVal
   delay(delayValue);
 }
 
+void setColorAll(uint8_t r, uint8_t g, uint8_t b) {
+  for(int i=0; i<pixels.numPixels(); i++) {
+    pixels.setPixelColor(i, pixels.Color(r,g,b));
+  }
+  pixels.show();
+}
+
 int rfid() {
   uint8_t success;
   uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };
   uint8_t uidLength;
 
-  if(dimm = true){
-    for(led=0; led <=104; led++) {
-      setColor(led,0,0,0,1);
-    }
-  }
+  setColorAll(0,0,0);
 
   success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
 
