@@ -20,6 +20,7 @@
 #define MOSI (23)
 #define SS   (5)
 #define NUMPIXELS 104
+#define KAPADLO 15
 
 Adafruit_PN532 nfc(SCK, MISO, MOSI, SS);
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(104, PIN, NEO_GRB + NEO_KHZ800);
@@ -62,11 +63,14 @@ void setup() {
   pinMode(PIN_R3, OUTPUT);
   pinMode(PIN_R2, OUTPUT);
   pinMode(PIN_R1, OUTPUT);
+  pinMode(KAPADLO, OUTPUT);
   digitalWrite(PIN_R4, 1);
   digitalWrite(PIN_R3, 1);
   digitalWrite(PIN_R2, 1);
   digitalWrite(PIN_R1, 1);
   pixels.begin();
+
+  digitalWrite(KAPADLO, LOW);
 
   startTime = millis();
 
@@ -110,6 +114,7 @@ void loop() {
       }
     }
   if(rfid() == 0x3){
+    digitalWrite(KAPADLO, HIGH);
     while(1){
       dimm = false;
       handleLEDs();
