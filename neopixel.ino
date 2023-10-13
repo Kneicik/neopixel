@@ -3,6 +3,7 @@
 #include <Adafruit_PN532.h>
 #include <WiFi.h>
 #include <ESPAsyncWebSrv.h>
+#include <HTTPClient.h>
 
 // 0x1 wiatr
 // 0x2 ogien
@@ -112,6 +113,7 @@ void loop() {
   if(rfid() == 0x1){
     while(1){
       dimm = false;
+      sendHTTPRequestToPeer(0);
       handleLEDs();
     }
   }
@@ -222,7 +224,9 @@ void get_request(const char* responseText) {
 
 void handleRestart(AsyncWebServerRequest *request) {
     request->send(200, "text/plain", "Restarting...");
-    delay(1000);
+    delay(500);
+    sendHTTPRequestToPeer(1);
+    delay(500);
     ESP.restart();
 }
 
@@ -230,4 +234,27 @@ void handleRoot(AsyncWebServerRequest *request) {
     request->send_P(200, "text/html", INDEX_HTML);
 }
 
+void sendHTTPRequestToPeer(int i) {
+  HTTPClient http; 
+  String url;// Tworzy obiekt klienta HTTP
+  switch(i){
+  case 0: 
+    url = "http://192.168.2.12/lighton"; 
+    break;  // Ustawia URL serwera docelowego
+  case 1: 
+    url = "http://192.168.2.12/lightoff"; 
+    break;
+  }
+  http.begin(url);   // Rozpoczyna połączenie z serwerem
+  int httpResponseCode = http.GET();   // Wysyła żądanie GET
 
+  if (httpResponseCode > 0) {
+    String response = http.getString();   // Pobiera odpowiedź z serwera
+    Serial.println(response);   // Wyświetla odpowiedź w monitorze szeregowym
+  } else {
+    Serial.print("Error on sending GET request: ");
+    Serial.println(httpResponseCode);
+  }
+
+  http.end();  // Zamyka połączenie
+}
