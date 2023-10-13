@@ -15,6 +15,7 @@
 #define PIN_R2 26
 #define PIN_R1 27
 #define PIN_RESET 21
+#define SIGNAL_PIN 5
 #define SCK  (18)
 #define MISO (19)
 #define MOSI (23)
@@ -62,6 +63,8 @@ void setup() {
   pinMode(PIN_R3, OUTPUT);
   pinMode(PIN_R2, OUTPUT);
   pinMode(PIN_R1, OUTPUT);
+  pinMode(SIGNAL_PIN, OUTPUT);
+  digitalWrite(SIGNAL_PIN,HIGH); 
   digitalWrite(PIN_R4, 1);
   digitalWrite(PIN_R3, 1);
   digitalWrite(PIN_R2, 1);
@@ -110,6 +113,7 @@ void loop() {
       }
     }
   if(rfid() == 0x2){
+    digitalWrite(SIGNAL_PIN,LOW);
     while(1){
       dimm = false;
       handleLEDs();
